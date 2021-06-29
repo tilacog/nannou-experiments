@@ -3,8 +3,8 @@ mod bodies;
 use bodies::{Attractor, Mover};
 use nannou::prelude::*;
 
-const WIDTH: u32 = 700;
-const HEIGHT: u32 = 700;
+pub const WIDTH: u32 = 700;
+pub const HEIGHT: u32 = 700;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -21,7 +21,7 @@ fn model(app: &App) -> Model {
 
     Model {
         attractor: Attractor::new(),
-        movers: vec![Mover::new()],
+        movers: vec![Mover::new(), Mover::new()],
     }
 }
 
@@ -31,14 +31,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
-
-    // if app.elapsed_frames() <= 1 {
     draw.background().color(BLACK);
-    // }
-    // draw.rect()
-    //     .w_h(WIDTH as f32, HEIGHT as f32)
-    //     .color(srgba(0.0, 0.0, 0.0, 0.1));
-
     model.draw(&draw);
     draw.to_frame(app, &frame).unwrap();
 }
