@@ -44,7 +44,8 @@ impl Model {
     }
 
     fn update(&mut self) {
-        self.attractor.update();
+        // self.attractor.update();
+        self.attractor.attract(&mut self.mover);
         self.mover.update();
     }
 }
