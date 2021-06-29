@@ -2,9 +2,9 @@ mod bodies;
 
 use bodies::{Attractor, Mover};
 use nannou::prelude::*;
-use std::collections::VecDeque;
-const WIDTH: u32 = 500;
-const HEIGHT: u32 = 500;
+
+const WIDTH: u32 = 700;
+const HEIGHT: u32 = 700;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -21,8 +21,7 @@ fn model(app: &App) -> Model {
 
     Model {
         attractor: Attractor::new(),
-        mover: Mover::new(),
-        trace: VecDeque::new(),
+        movers: vec![Mover::new()],
     }
 }
 
@@ -46,27 +45,24 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
 struct Model {
     attractor: Attractor,
-    mover: Mover,
-    trace: VecDeque<Vec2>,
+    movers: Vec<Mover>,
 }
 
 impl Model {
     fn draw(&self, draw: &Draw) {
         self.attractor.draw(&draw);
-        self.mover.draw(&draw);
-
-        let point_iterator = self.trace.iter().cloned().map(|p| (p, PLUM));
-        draw.polyline().weight(2.0).points_colored(point_iterator);
+        for mover in &self.movers {
+            mover.draw(&draw);
+        }
     }
 
     fn update(&mut self) {
         // self.attractor.update();
-        self.attractor.attract(&mut self.mover);
-        self.mover.update();
-
-        self.trace.push_front(self.mover.position.clone());
-        if self.trace.len() > 10_00 {
-            self.trace.pop_back();
+        for mover in self.movers.iter_mut() {
+            self.attractor.attract(mover);
+        }
+        for mover in self.movers.iter_mut() {
+            mover.update();
         }
     }
 }
