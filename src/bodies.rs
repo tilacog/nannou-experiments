@@ -1,4 +1,4 @@
-use nannou::{color, geom::Vec2, Draw, rand::random_f32};
+use nannou::{color, geom::Vec2, rand::random_f32, Draw};
 
 const G: f32 = 5.0;
 
@@ -27,7 +27,7 @@ impl Attractor {
 
     pub fn attract(&self, mover: &mut Mover) {
         let force = self.position - mover.position;
-        let distance_squared = force.length_squared();
+        let distance_squared = force.length_squared().clamp(1.0, 10_000.0);
         let strength = (G * (self.mass * mover.mass)) / distance_squared;
         let force_magnutide = force.normalize() * strength; // set magnitude
         mover.apply_force(force_magnutide);
@@ -44,7 +44,7 @@ impl Mover {
     pub fn new() -> Self {
         Mover {
             position: Vec2::new(100.0, 10.0),
-            velocity: Vec2::new(random_f32(), random_f32()),
+            velocity: Vec2::new(random_f32() * 10.0, random_f32()), // 10 is magic
             acceleration: Vec2::new(0.0, 0.0),
             mass: 10.0,
         }
