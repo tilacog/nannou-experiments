@@ -47,24 +47,10 @@ pub struct Mover {
     color: color::Hsla,
     trace_color: color::Hsla,
 }
+
 impl Mover {
     pub fn new() -> Self {
-        let random_x = (WIDTH / 2) as f32 * random_f32();
-        let random_y = (HEIGHT / 2) as f32 * random_f32();
-        let mass = (10.0 * random_f32()).clamp(3.0, 10.0);
-        let color = random_color();
-        let mut trace_color = color.clone();
-        trace_color.lightness = trace_color.alpha * 0.1;
-
-        Mover {
-            position: Vec2::new(random_x, random_y),
-            velocity: random_point() / 2.0,
-            acceleration: random_point() / 2.0,
-            mass: mass,
-            trace: VecDeque::new(),
-            color,
-            trace_color,
-        }
+        MoverBuilder::new().build()
     }
 
     pub fn draw(&self, draw: &Draw) {
@@ -111,4 +97,55 @@ fn random_point() -> Vec2 {
 fn random_color() -> color::Hsla {
     let random_hue = random_f32() * 360.0;
     color::Hsla::new(random_hue, 0.5, 0.5, 1.0)
+}
+
+#[derive(Default)]
+struct MoverBuilder {
+    position: Option<Vec2>,
+    velocity: Option<Vec2>,
+    color: Option<color::Hsla>,
+    mass: Option<f32>,
+}
+
+impl MoverBuilder {
+    fn new() -> Self {
+        Default::default()
+    }
+
+    fn build(self) -> Mover {
+        let random_x = (WIDTH / 2) as f32 * random_f32();
+        let random_y = (HEIGHT / 2) as f32 * random_f32();
+        let position = self.position.unwrap_or(Vec2::new(random_x, random_y));
+        let velocity = self.velocity.unwrap_or(random_point().normalize());
+        let mass = self.mass.unwrap_or((10.0 * random_f32()).clamp(3.0, 10.0));
+        let color = self.color.unwrap_or(random_color());
+        let mut trace_color = color.clone();
+        trace_color.lightness = trace_color.alpha * 0.1;
+        Mover {
+            position,
+            velocity,
+            acceleration: Vec2::ZERO,
+            mass,
+            trace: VecDeque::new(),
+            color,
+            trace_color,
+        }
+    }
+
+    fn position(mut self, position: Vec2) -> Self {
+        self.position = Some(position);
+        self
+    }
+    fn velocity(mut self, velocity: Vec2) -> Self {
+        self.velocity = Some(velocity);
+        self
+    }
+    fn mass(mut self, mass: f32) -> Self {
+        self.mass = Some(mass);
+        self
+    }
+    fn color(mut self, color: color::Hsla) -> Self {
+        self.color = Some(color);
+        self
+    }
 }
