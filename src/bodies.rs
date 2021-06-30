@@ -1,20 +1,20 @@
-use super::{HEIGHT, WIDTH};
-use nannou::{color, geom::Vec2, rand::random_f32, Draw};
+use super::{DEPTH, HEIGHT, WIDTH};
+use nannou::{color, geom::Vec3, rand::random_f32, Draw};
 use std::collections::VecDeque;
 const G: f32 = 10.0;
 const MOVER_HISTORY: usize = 10_000;
-
+const Z_SCALING_FACTOR: f32 = 0.01;
 const MAX_SPEED: f32 = 10.0;
 
 pub struct Attractor {
-    pub position: Vec2,
+    pub position: Vec3,
     pub mass: f32,
 }
 
 impl Attractor {
     pub fn new() -> Self {
         Attractor {
-            position: Vec2::new(0.0, 0.0),
+            position: Vec3::new(0.0, 0.0, 0.0),
             mass: 10.0,
         }
     }
@@ -22,7 +22,7 @@ impl Attractor {
     pub fn draw(&self, draw: &Draw) {
         draw.ellipse()
             .color(color::GREENYELLOW)
-            .xy(self.position)
+            .xy(self.position.into())
             .radius(10.0);
     }
 
@@ -39,11 +39,11 @@ impl Attractor {
 }
 
 pub struct Mover {
-    pub position: Vec2,
-    pub velocity: Vec2,
-    pub acceleration: Vec2,
+    pub position: Vec3,
+    pub velocity: Vec3,
+    pub acceleration: Vec3,
     pub mass: f32,
-    trace: VecDeque<Vec2>,
+    trace: VecDeque<Vec3>,
     color: color::Hsla,
     trace_color: color::Hsla,
 }
@@ -59,10 +59,12 @@ impl Mover {
             .weight(2.0 * self.mass / 10.0)
             .points_colored(point_iterator);
 
+        let z_scaling = (1.0 + self.position.z * Z_SCALING_FACTOR) * self.mass / 2.0;
+
         draw.ellipse()
             .color(self.color)
-            .xy(self.position)
-            .radius(self.mass / 2.0);
+            .xy(self.position.into())
+            .radius(z_scaling);
     }
 
     pub fn update(&mut self) {
@@ -70,12 +72,12 @@ impl Mover {
         self.velocity += self.acceleration;
 
         self.velocity = self.velocity.clamp(
-            Vec2::new(-MAX_SPEED, -MAX_SPEED),
-            Vec2::new(MAX_SPEED, MAX_SPEED),
+            Vec3::new(-MAX_SPEED, -MAX_SPEED, -MAX_SPEED),
+            Vec3::new(MAX_SPEED, MAX_SPEED, MAX_SPEED),
         );
 
         self.position += self.velocity;
-        self.acceleration = Vec2::ZERO;
+        self.acceleration = Vec3::ZERO;
 
         // update trace
         self.trace.push_front(self.position.clone());
@@ -84,14 +86,14 @@ impl Mover {
         }
     }
 
-    pub fn apply_force(&mut self, force: Vec2) {
+    pub fn apply_force(&mut self, force: Vec3) {
         let f = force / self.mass;
         self.acceleration += f;
     }
 }
 
-fn random_point() -> Vec2 {
-    Vec2::new(random_f32(), random_f32())
+fn random_point() -> Vec3 {
+    Vec3::new(random_f32(), random_f32(), random_f32())
 }
 
 fn random_color() -> color::Hsla {
@@ -101,8 +103,8 @@ fn random_color() -> color::Hsla {
 
 #[derive(Default)]
 pub struct MoverBuilder {
-    position: Option<Vec2>,
-    velocity: Option<Vec2>,
+    position: Option<Vec3>,
+    velocity: Option<Vec3>,
     color: Option<color::Hsla>,
     mass: Option<f32>,
 }
@@ -115,7 +117,10 @@ impl MoverBuilder {
     pub fn build(self) -> Mover {
         let random_x = (WIDTH / 2) as f32 * random_f32();
         let random_y = (HEIGHT / 2) as f32 * random_f32();
-        let position = self.position.unwrap_or(Vec2::new(random_x, random_y));
+        let random_z = (DEPTH / 2) as f32 * random_f32();
+        let position = self
+            .position
+            .unwrap_or(Vec3::new(random_x, random_y, random_z));
         let velocity = self.velocity.unwrap_or(random_point().normalize());
         let mass = self.mass.unwrap_or((10.0 * random_f32()).clamp(3.0, 10.0));
         let color = self.color.unwrap_or(random_color());
@@ -124,7 +129,7 @@ impl MoverBuilder {
         Mover {
             position,
             velocity,
-            acceleration: Vec2::ZERO,
+            acceleration: Vec3::ZERO,
             mass,
             trace: VecDeque::new(),
             color,
@@ -132,11 +137,11 @@ impl MoverBuilder {
         }
     }
 
-    pub fn position(mut self, position: Vec2) -> Self {
+    pub fn position(mut self, position: Vec3) -> Self {
         self.position = Some(position);
         self
     }
-    pub fn velocity(mut self, velocity: Vec2) -> Self {
+    pub fn velocity(mut self, velocity: Vec3) -> Self {
         self.velocity = Some(velocity);
         self
     }

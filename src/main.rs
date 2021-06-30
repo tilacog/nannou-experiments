@@ -3,8 +3,9 @@ mod bodies;
 use bodies::{Attractor, Mover, MoverBuilder};
 use nannou::prelude::*;
 
-pub const WIDTH: u32 = 700;
-pub const HEIGHT: u32 = 700;
+pub const WIDTH: u32 = 800;
+pub const HEIGHT: u32 = 800;
+pub const DEPTH: u32 = (WIDTH + HEIGHT) / 2;
 const NUM_MOVERS: usize = 7;
 
 fn main() {
@@ -23,8 +24,8 @@ fn model(app: &App) -> Model {
     let mut movers = vec![];
     for i in 1..=NUM_MOVERS {
         let mover = MoverBuilder::new()
-            .position(Vec2::new((40 * i) as f32, 0.0))
-            .velocity(Vec2::new(0.0, 2.0))
+            .position(Vec3::new((40 * i) as f32, 0.0, 0.0))
+            .velocity(Vec3::new(0.0, 2.0, 2.0))
             .mass(5.0)
             .build();
         movers.push(mover);
