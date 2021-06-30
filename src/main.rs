@@ -1,10 +1,11 @@
 mod bodies;
 
-use bodies::{Attractor, Mover};
+use bodies::{Attractor, Mover, MoverBuilder};
 use nannou::prelude::*;
 
 pub const WIDTH: u32 = 700;
 pub const HEIGHT: u32 = 700;
+const NUM_MOVERS: usize = 7;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -19,9 +20,19 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
+    let mut movers = vec![];
+    for i in 1..=NUM_MOVERS {
+        let mover = MoverBuilder::new()
+            .position(Vec2::new((40 * i) as f32, 0.0))
+            .velocity(Vec2::new(0.0, 2.0))
+            .mass(5.0)
+            .build();
+        movers.push(mover);
+    }
+
     Model {
         attractor: Attractor::new(),
-        movers: vec![Mover::new(), Mover::new()],
+        movers,
     }
 }
 

@@ -2,7 +2,7 @@ use super::{HEIGHT, WIDTH};
 use nannou::{color, geom::Vec2, rand::random_f32, Draw};
 use std::collections::VecDeque;
 const G: f32 = 10.0;
-const MOVER_HISTORY: usize = 5_000;
+const MOVER_HISTORY: usize = 10_000;
 
 const MAX_SPEED: f32 = 10.0;
 
@@ -84,7 +84,7 @@ impl Mover {
         }
     }
 
-    fn apply_force(&mut self, force: Vec2) {
+    pub fn apply_force(&mut self, force: Vec2) {
         let f = force / self.mass;
         self.acceleration += f;
     }
@@ -100,7 +100,7 @@ fn random_color() -> color::Hsla {
 }
 
 #[derive(Default)]
-struct MoverBuilder {
+pub struct MoverBuilder {
     position: Option<Vec2>,
     velocity: Option<Vec2>,
     color: Option<color::Hsla>,
@@ -108,11 +108,11 @@ struct MoverBuilder {
 }
 
 impl MoverBuilder {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Default::default()
     }
 
-    fn build(self) -> Mover {
+    pub fn build(self) -> Mover {
         let random_x = (WIDTH / 2) as f32 * random_f32();
         let random_y = (HEIGHT / 2) as f32 * random_f32();
         let position = self.position.unwrap_or(Vec2::new(random_x, random_y));
@@ -120,7 +120,7 @@ impl MoverBuilder {
         let mass = self.mass.unwrap_or((10.0 * random_f32()).clamp(3.0, 10.0));
         let color = self.color.unwrap_or(random_color());
         let mut trace_color = color.clone();
-        trace_color.lightness = trace_color.alpha * 0.1;
+        trace_color.lightness = trace_color.lightness * 0.1;
         Mover {
             position,
             velocity,
@@ -132,19 +132,19 @@ impl MoverBuilder {
         }
     }
 
-    fn position(mut self, position: Vec2) -> Self {
+    pub fn position(mut self, position: Vec2) -> Self {
         self.position = Some(position);
         self
     }
-    fn velocity(mut self, velocity: Vec2) -> Self {
+    pub fn velocity(mut self, velocity: Vec2) -> Self {
         self.velocity = Some(velocity);
         self
     }
-    fn mass(mut self, mass: f32) -> Self {
+    pub fn mass(mut self, mass: f32) -> Self {
         self.mass = Some(mass);
         self
     }
-    fn color(mut self, color: color::Hsla) -> Self {
+    pub fn color(mut self, color: color::Hsla) -> Self {
         self.color = Some(color);
         self
     }
