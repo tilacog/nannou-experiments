@@ -5,12 +5,12 @@ fn main() {
 }
 
 struct Model {
-    r1: f32,
-    r2: f32,
+    inner_radius: f32,
+    outer_radius_factor: f32,
 }
 
 fn model(app: &App) -> Model {
-    app.set_loop_mode(LoopMode::loop_once());
+    // app.set_loop_mode(LoopMode::loop_once());
     let _window = app
         .new_window()
         .size(700, 700)
@@ -18,23 +18,24 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
-    Model { r1: 12.5, r2: 25.0 }
+    Model {
+        inner_radius: 100.0,
+        outer_radius_factor: 2.0,
+    }
 }
 
-fn update(_app: &App, _model: &mut Model, _update: Update) {
-    // model.r1 -= 1.0;
-    // model.r2 -= 1.0;
+fn update(_app: &App, model: &mut Model, _update: Update) {
+    model.inner_radius = (model.inner_radius - 0.1).max(0.0);
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
 
-    for factor in 1..=12 {
-        let f = factor as f32;
-        draw.polyline()
-            .points_colored_closed(star(model.r1 * f, model.r2 * f));
-    }
+    draw.polyline().points_colored_closed(star(
+        model.inner_radius,
+        model.inner_radius * model.outer_radius_factor,
+    ));
 
     draw.to_frame(app, &frame).unwrap();
 }
