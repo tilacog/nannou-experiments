@@ -1,3 +1,4 @@
+use nannou::noise::*;
 use nannou::prelude::*;
 
 fn main() {
@@ -7,10 +8,11 @@ fn main() {
 struct Model {
     r1: f32,
     r2: f32,
+    noise: Perlin,
 }
 
 fn model(app: &App) -> Model {
-    app.set_loop_mode(LoopMode::loop_once());
+    // app.set_loop_mode(LoopMode::loop_once());
     let _window = app
         .new_window()
         .size(700, 700)
@@ -18,13 +20,14 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
-    Model { r1: 12.5, r2: 25.0 }
+    Model {
+        r1: 12.5,
+        r2: 25.0,
+        noise: Perlin::new(),
+    }
 }
 
-fn update(_app: &App, _model: &mut Model, _update: Update) {
-    // model.r1 -= 1.0;
-    // model.r2 -= 1.0;
-}
+fn update(_app: &App, _model: &mut Model, _update: Update) {}
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
@@ -32,8 +35,16 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
     for factor in 1..=12 {
         let f = factor as f32;
-        draw.polyline()
-            .points_colored_closed(star(model.r1 * f, model.r2 * f));
+        let iter = star(model.r1 * f, model.r2 * f).map(|(p, c)| {
+            let t = app.elapsed_frames() as f64 * 0.01;
+            let noise = vec2(
+                model.noise.get([p.x as f64, p.y as f64, 0.0 + t]) as f32,
+                model.noise.get([p.x as f64, p.y as f64, 1.0 + t]) as f32,
+            );
+            (p + noise * factor.min(7) as f32, c)
+        });
+
+        draw.polyline().points_colored_closed(iter);
     }
 
     draw.to_frame(app, &frame).unwrap();
