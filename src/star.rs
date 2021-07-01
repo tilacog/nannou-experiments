@@ -31,24 +31,21 @@ impl Star {
 }
 
 fn star_points(r1: f32, r2: f32) -> impl Iterator<Item = (Point2, Rgb<u8>)> {
-    create_star_points(Point2::ZERO, r1, r2, 5)
-        .into_iter()
-        .map(|p| (p, STEELBLUE))
+    create_star_points(r1, r2, 5).map(|p| (p, STEELBLUE))
 }
 
-fn create_star_points(center: Point2, radius1: f32, radius2: f32, npoints: usize) -> Vec<Point2> {
+fn create_star_points(radius1: f32, radius2: f32, npoints: u32) -> impl Iterator<Item = Point2> {
     let step = TAU / npoints as f32;
     let half_step = step / 2.0;
-    let mut points = vec![];
-    let mut cursor_angle = 0.0;
-    while cursor_angle < TAU {
-        let outer_x = center.x + cursor_angle.sin() * radius2;
-        let outer_y = center.y + cursor_angle.cos() * radius2;
-        let inner_x = center.x + (cursor_angle + half_step).sin() * radius1;
-        let inner_y = center.x + (cursor_angle + half_step).cos() * radius1;
-        points.push(vec2(outer_x, outer_y));
-        points.push(vec2(inner_x, inner_y));
-        cursor_angle += step;
-    }
-    points
+
+    (0..npoints).flat_map(move |i| {
+        let cursor_angle = step * i as f32;
+
+        let outer_x = cursor_angle.sin() * radius2;
+        let outer_y = cursor_angle.cos() * radius2;
+        let inner_x = (cursor_angle + half_step).sin() * radius1;
+        let inner_y = (cursor_angle + half_step).cos() * radius1;
+
+        [vec2(outer_x, outer_y), vec2(inner_x, inner_y)]
+    })
 }
