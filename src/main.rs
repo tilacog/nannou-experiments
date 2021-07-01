@@ -41,23 +41,23 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
 fn star(r1: f32, r2: f32) -> impl Iterator<Item = (Point2, Rgb<u8>)> {
     star_points(Point2::ZERO, r1, r2, 5)
-        .into_iter()
         .map(|p| (p, STEELBLUE))
 }
 
-fn star_points(center: Point2, radius1: f32, radius2: f32, npoints: usize) -> Vec<Point2> {
+fn star_points(center: Point2, radius1: f32, radius2: f32, npoints: u32) -> impl Iterator<Item = Point2> {
+    use std::f32::consts::TAU;
+
     let step = TAU / npoints as f32;
     let half_step = step / 2.0;
-    let mut points = vec![];
-    let mut cursor_angle = 0.0;
-    while cursor_angle < TAU {
+
+    (0..npoints).flat_map(move |i| {
+        let cursor_angle = step * i as f32;
+
         let outer_x = center.x + cursor_angle.sin() * radius2;
         let outer_y = center.y + cursor_angle.cos() * radius2;
         let inner_x = center.x + (cursor_angle + half_step).sin() * radius1;
         let inner_y = center.x + (cursor_angle + half_step).cos() * radius1;
-        points.push(vec2(outer_x, outer_y));
-        points.push(vec2(inner_x, inner_y));
-        cursor_angle += step;
-    }
-    points
+
+        [vec2(outer_x, outer_y), vec2(inner_x, inner_y)]
+    })
 }
