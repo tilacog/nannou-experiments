@@ -3,39 +3,41 @@ use nannou::prelude::*;
 pub struct Star {
     inner_radius: f32,
     outer_radius_factor: f32,
+    dark: bool,
 }
 
 impl Star {
-    pub fn new(inner_radius: f32, outer_radius_factor: f32) -> Star {
+    pub fn new(inner_radius: f32, outer_radius_factor: f32, dark: bool) -> Star {
         Star {
             inner_radius,
             outer_radius_factor,
+            dark,
         }
     }
 
     pub fn draw(&self, draw: &Draw) {
-        draw.polyline().points_colored_closed(star_points(
+        let points = star_points(
             self.inner_radius,
             self.inner_radius * self.outer_radius_factor,
-        ));
+        )
+        .map(|point| (point, star_color(self.dark)));
+        // draw.polyline().points_colored_closed(points);
+        draw.polygon().points_colored(points);
     }
 
     fn shrink(&mut self) {
-        let decrement = 0.1;
+        let decrement = 0.5;
         let new_radius = (self.inner_radius - decrement).max(0.0);
         self.inner_radius = new_radius
     }
 }
 
-fn star_points(r1: f32, r2: f32) -> impl Iterator<Item = (Point2, Rgb<u8>)> {
-    create_star_points(r1, r2, 5).map(|p| (p, STEELBLUE))
-}
-
-fn create_star_points(radius1: f32, radius2: f32, npoints: u32) -> impl Iterator<Item = Point2> {
-    let step = TAU / npoints as f32;
+fn star_points(radius1: f32, radius2: f32) -> impl Iterator<Item = Point2> {
+    let n_points = 5;
+    let step = TAU / n_points as f32;
     let half_step = step / 2.0;
 
-    (0..npoints).flat_map(move |i| {
+    (0..n_points).flat_map(move |i| {
         let cursor_angle = step * i as f32;
 
         let outer_x = cursor_angle.sin() * radius2;
@@ -60,28 +62,37 @@ impl StarGroup {
         let stars: Vec<Star> = (1..=num_stars)
             .map(|i| {
                 let star_inner_radius = i as f32 * step;
-                Star::new(star_inner_radius, 2.0)
+                Star::new(star_inner_radius, 2.0, i % 2 == 0)
             })
             .collect();
         StarGroup {
             stars,
             size,
             num_stars,
-            fixed_star: Star::new(size, 2.0),
+            fixed_star: Star::new(size, 2.0, true),
         }
     }
 
     pub fn draw(&self, draw: &Draw) {
         self.fixed_star.draw(&draw);
-        self.stars.iter().for_each(|star| star.draw(&draw));
+        self.stars.iter().rev().for_each(|star| star.draw(&draw));
     }
 
     pub fn update(&mut self) {
         self.stars.iter_mut().for_each(|star| star.shrink());
         self.stars.retain(|star| star.inner_radius > 0.0);
         while self.stars.len() < self.num_stars {
-            let star = Star::new(self.size, 2.0);
-            self.stars.push(star)
+            let mut new_star = Star::new(self.size, 2.0, !self.fixed_star.dark);
+            std::mem::swap(&mut self.fixed_star, &mut new_star);
+            self.stars.push(new_star)
         }
+    }
+}
+
+fn star_color(dark: bool) -> Hsv {
+    if dark {
+        hsv(0.0, 0.0, 0.075)
+    } else {
+        hsv(0.0, 0.0, 0.0)
     }
 }
