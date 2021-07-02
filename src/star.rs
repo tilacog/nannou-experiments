@@ -4,14 +4,16 @@ pub struct Star {
     inner_radius: f32,
     outer_radius_factor: f32,
     dark: bool,
+    rotation: f32,
 }
 
 impl Star {
-    pub fn new(inner_radius: f32, outer_radius_factor: f32, dark: bool) -> Star {
+    pub fn new(inner_radius: f32, outer_radius_factor: f32, dark: bool, rotation: f32) -> Star {
         Star {
             inner_radius,
             outer_radius_factor,
             dark,
+            rotation,
         }
     }
 
@@ -20,6 +22,7 @@ impl Star {
             self.inner_radius,
             self.inner_radius * self.outer_radius_factor,
         )
+        .map(|point| point.rotate(self.rotation))
         .map(|point| (point, star_color(self.dark)));
         // draw.polyline().points_colored_closed(points);
         draw.polygon().points_colored(points);
@@ -62,14 +65,14 @@ impl StarGroup {
         let stars: Vec<Star> = (1..=num_stars)
             .map(|i| {
                 let star_inner_radius = i as f32 * step;
-                Star::new(star_inner_radius, 2.0, i % 2 == 0)
+                Star::new(star_inner_radius, 2.0, i % 2 == 0, 0.0)
             })
             .collect();
         StarGroup {
             stars,
             size,
             num_stars,
-            fixed_star: Star::new(size, 2.0, true),
+            fixed_star: Star::new(size, 2.0, true, 0.0),
         }
     }
 
@@ -82,7 +85,7 @@ impl StarGroup {
         self.stars.iter_mut().for_each(|star| star.shrink());
         self.stars.retain(|star| star.inner_radius > 0.0);
         while self.stars.len() < self.num_stars {
-            let mut new_star = Star::new(self.size, 2.0, !self.fixed_star.dark);
+            let mut new_star = Star::new(self.size, 2.0, !self.fixed_star.dark, 0.0);
             std::mem::swap(&mut self.fixed_star, &mut new_star);
             self.stars.push(new_star)
         }
