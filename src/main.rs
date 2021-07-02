@@ -1,13 +1,13 @@
 use nannou::prelude::*;
 mod star;
-use star::Star;
+use star::StarGroup;
 
 fn main() {
     nannou::app(model).update(update).run();
 }
 
 struct Model {
-    star: Star,
+    star_group: StarGroup,
 }
 
 fn model(app: &App) -> Model {
@@ -19,16 +19,18 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
-    Model { star: Star::new() }
+    Model {
+        star_group: StarGroup::new(5, 150.0),
+    }
 }
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
-    model.star.update()
+    model.star_group.update()
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
-    model.star.draw(&draw);
+    model.star_group.draw(&draw);
     draw.to_frame(app, &frame).unwrap();
 }

@@ -6,10 +6,10 @@ pub struct Star {
 }
 
 impl Star {
-    pub fn new() -> Star {
+    pub fn new(inner_radius: f32, outer_radius_factor: f32) -> Star {
         Star {
-            inner_radius: 100.0,
-            outer_radius_factor: 2.0,
+            inner_radius,
+            outer_radius_factor,
         }
     }
 
@@ -20,12 +20,9 @@ impl Star {
         ));
     }
 
-    pub fn update(&mut self) {
-        self.shrink(0.1);
-    }
-
-    fn shrink(&mut self, amount: f32) {
-        let new_radius = (self.inner_radius - amount.abs()).max(0.0);
+    fn shrink(&mut self) {
+        let decrement = 0.02;
+        let new_radius = (self.inner_radius - decrement).max(0.0);
         self.inner_radius = new_radius
     }
 }
@@ -48,4 +45,40 @@ fn create_star_points(radius1: f32, radius2: f32, npoints: u32) -> impl Iterator
 
         [vec2(outer_x, outer_y), vec2(inner_x, inner_y)]
     })
+}
+
+pub struct StarGroup {
+    stars: Vec<Star>,
+    size: f32,
+    num_stars: usize,
+}
+
+impl StarGroup {
+    pub fn new(num_stars: usize, size: f32) -> StarGroup {
+        let step = size / num_stars as f32;
+        let stars: Vec<Star> = (1..=num_stars)
+            .map(|i| {
+                let star_inner_radius = i as f32 * step;
+                Star::new(star_inner_radius, 2.0)
+            })
+            .collect();
+        StarGroup {
+            stars,
+            size,
+            num_stars,
+        }
+    }
+
+    pub fn draw(&self, draw: &Draw) {
+        self.stars.iter().for_each(|star| star.draw(&draw));
+    }
+
+    pub fn update(&mut self) {
+        self.stars.iter_mut().for_each(|star| star.shrink());
+        self.stars.retain(|star| star.inner_radius > 0.0);
+        while self.stars.len() < self.num_stars {
+            let star = Star::new(self.size, 2.0);
+            self.stars.push(star)
+        }
+    }
 }
