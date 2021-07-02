@@ -86,6 +86,7 @@ impl StarGroup {
             std::mem::swap(&mut self.fixed_star, &mut new_star);
             self.stars.push(new_star)
         }
+        assert!(self.stars.len() == self.num_stars);
     }
 }
 

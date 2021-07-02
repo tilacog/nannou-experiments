@@ -30,7 +30,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
-    draw.background().color(BLACK);
+    draw.background().color(CRIMSON);
     model.star_group.draw(&draw);
     draw.to_frame(app, &frame).unwrap();
 }
