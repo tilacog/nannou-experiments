@@ -21,7 +21,7 @@ impl Star {
     }
 
     fn shrink(&mut self) {
-        let decrement = 0.02;
+        let decrement = 0.1;
         let new_radius = (self.inner_radius - decrement).max(0.0);
         self.inner_radius = new_radius
     }
@@ -51,6 +51,7 @@ pub struct StarGroup {
     stars: Vec<Star>,
     size: f32,
     num_stars: usize,
+    fixed_star: Star,
 }
 
 impl StarGroup {
@@ -66,10 +67,12 @@ impl StarGroup {
             stars,
             size,
             num_stars,
+            fixed_star: Star::new(size, 2.0),
         }
     }
 
     pub fn draw(&self, draw: &Draw) {
+        self.fixed_star.draw(&draw);
         self.stars.iter().for_each(|star| star.draw(&draw));
     }
 
