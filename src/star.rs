@@ -24,7 +24,6 @@ impl Star {
         )
         .map(|point| point.rotate(self.rotation))
         .map(|point| (point, star_color(self.dark)));
-        // draw.polyline().points_colored_closed(points);
         draw.polygon().points_colored(points);
     }
 
@@ -57,6 +56,7 @@ pub struct StarGroup {
     size: f32,
     num_stars: usize,
     fixed_star: Star,
+    phase: usize,
 }
 
 impl StarGroup {
@@ -73,6 +73,7 @@ impl StarGroup {
             size,
             num_stars,
             fixed_star: Star::new(size, 2.0, true, 0.0),
+            phase: 0,
         }
     }
 
@@ -82,6 +83,10 @@ impl StarGroup {
     }
 
     pub fn update(&mut self) {
+        (0..self.phase).for_each(|_| self.update_inner())
+    }
+
+    fn update_inner(&mut self) {
         self.stars.iter_mut().for_each(|star| star.shrink());
         self.stars.retain(|star| star.inner_radius > 0.0);
         while self.stars.len() < self.num_stars {
@@ -90,6 +95,11 @@ impl StarGroup {
             self.stars.push(new_star)
         }
         assert!(self.stars.len() == self.num_stars);
+    }
+
+    pub fn random_phase(&mut self) {
+        let random_phases = (random_f32() * 50.0).round() as usize;
+        self.phase += random_phases * 10
     }
 }
 

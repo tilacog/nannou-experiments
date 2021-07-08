@@ -11,7 +11,7 @@ struct Model {
 }
 
 fn model(app: &App) -> Model {
-    // app.set_loop_mode(LoopMode::loop_once());
+    app.set_loop_mode(LoopMode::loop_once());
     let _window = app
         .new_window()
         .size(700, 700)
@@ -19,9 +19,9 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
-    Model {
-        star_group: StarGroup::new(5, 150.0),
-    }
+    let mut star_group = StarGroup::new(5, 150.0);
+    star_group.random_phase();
+    Model { star_group }
 }
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
