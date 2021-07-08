@@ -52,6 +52,7 @@ fn star_points(radius1: f32, radius2: f32) -> impl Iterator<Item = Point2> {
 }
 
 pub struct StarGroup {
+    position: Point2,
     stars: Vec<Star>,
     size: f32,
     num_stars: usize,
@@ -69,6 +70,7 @@ impl StarGroup {
             })
             .collect();
         StarGroup {
+            position: Vec2::ZERO,
             stars,
             size,
             num_stars,
@@ -78,8 +80,14 @@ impl StarGroup {
     }
 
     pub fn draw(&self, draw: &Draw) {
+        let draw = draw.xy(self.position);
         self.fixed_star.draw(&draw);
         self.stars.iter().rev().for_each(|star| star.draw(&draw));
+        draw.xy(Vec2::ZERO);
+    }
+
+    pub fn xy(&mut self, position: Point2) {
+        self.position = position
     }
 
     pub fn update(&mut self) {
@@ -98,8 +106,8 @@ impl StarGroup {
     }
 
     pub fn random_phase(&mut self) {
-        let random_phases = (random_f32() * 50.0).round() as usize;
-        self.phase += random_phases * 10
+        let random_phases = (random_f32() * 1_000.0).round() as usize;
+        self.phase += random_phases
     }
 }
 
