@@ -3,12 +3,8 @@ use itertools::Itertools;
 use nannou::prelude::*;
 
 const MARGIN: u32 = 50;
-const NUM_LINES: usize = 15;
-const RESOLUTION: usize = 50;
 const WIDTH: u32 = 500;
 const HEIGHT: u32 = 500;
-const SCALE_H: f32 = WIDTH as f32 / RESOLUTION as f32;
-const SCALE_V: f32 = HEIGHT as f32 / NUM_LINES as f32;
 const X_OFFSET: f32 = (WIDTH / 2) as f32;
 const Y_OFFSET: f32 = (HEIGHT / 2) as f32;
 
@@ -16,7 +12,9 @@ fn main() {
     nannou::app(model).update(update).run();
 }
 
-struct Model {}
+struct Model {
+    grid: Grid,
+}
 
 fn model(app: &App) -> Model {
     app.set_loop_mode(LoopMode::loop_once());
@@ -27,25 +25,49 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
-    Model {}
+    let grid = Grid {
+        num_lines: 15,
+        resolution: 50,
+    };
+
+    Model { grid }
 }
 
 fn update(_app: &App, _model: &mut Model, _update: Update) {}
 
-fn view(app: &App, _model: &Model, frame: Frame) {
+fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(WHITE);
-
-    let xs: Vec<f32> = (0..RESOLUTION).into_iter().map(|n| n as f32).collect();
-    let ys: Vec<f32> = (0..NUM_LINES).into_iter().map(|n| n as f32).collect();
-    for &y in &ys {
-        for (&x0, &x1) in xs.iter().tuple_windows() {
-            let p0 = vec2(x0 * SCALE_H - X_OFFSET, y * SCALE_V - Y_OFFSET);
-            let p1 = vec2(x1 * SCALE_H - X_OFFSET, y * SCALE_V - Y_OFFSET);
-            draw.line().start(p0).end(p1);
-        }
-    }
+    model.grid.draw(&draw);
     draw.to_frame(app, &frame).unwrap();
 }
 
 // ------------------
+
+struct Grid {
+    num_lines: u32,
+    resolution: u32,
+}
+
+impl Grid {
+    fn iter_point_pairs(&self) -> impl Iterator<Item = (Point2, Point2)> {
+        let xs = (0..self.resolution).into_iter().map(|n| n as f32);
+        let ys = (0..self.num_lines).into_iter().map(|n| n as f32);
+
+        let scale_h: f32 = WIDTH as f32 / self.resolution as f32;
+        let scale_v: f32 = HEIGHT as f32 / self.num_lines as f32;
+
+        ys.cartesian_product(xs.tuple_windows::<(_, _)>())
+            .map(move |(y, (x0, x1))| {
+                let p0 = vec2(x0 * scale_h - X_OFFSET, y * scale_v - Y_OFFSET);
+                let p1 = vec2(x1 * scale_h - X_OFFSET, y * scale_v - Y_OFFSET);
+                (p0, p1)
+            })
+    }
+
+    fn draw(&self, draw: &Draw) {
+        for (p0, p1) in self.iter_point_pairs() {
+            draw.line().start(p0).end(p1);
+        }
+    }
+}
