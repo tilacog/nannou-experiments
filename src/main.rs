@@ -1,3 +1,4 @@
+//! https://nb.paulbutler.org/surface-projection/
 use itertools::Itertools;
 use nannou::prelude::*;
 
