@@ -20,10 +20,11 @@ fn main() {
 struct Model {
     grid: Grid,
     surface: Surface,
+    angle: f32,
 }
 
 fn model(app: &App) -> Model {
-    // app.set_loop_mode(LoopMode::loop_once());
+    app.set_loop_mode(LoopMode::loop_once());
     let _window = app
         .new_window()
         .size(WIDTH + MARGIN * 2, HEIGHT + MARGIN * 2)
@@ -32,24 +33,29 @@ fn model(app: &App) -> Model {
         .expect("failed to build window");
 
     let grid = Grid::new(15, 50);
-
     let surface = Surface::new();
-    Model { grid, surface }
+    let angle = PI / 2.5;
+    Model {
+        grid,
+        surface,
+        angle,
+    }
 }
 
-fn update(_app: &App, _model: &mut Model, _update: Update) {}
+fn update(_app: &App, _model: &mut Model, _update: Update) {
+    // model.angle = app.mouse.x;
+}
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(WHITE);
     // model.grid.draw(&draw);
-    let angle = app.mouse.x * 0.01;
-    model.surface.draw(&model.grid, &draw, angle);
+
+    model.surface.draw(&model.grid, &draw, model.angle);
 
     // debug angle info
-    draw.text(&format!("angle: {}", angle))
+    draw.text(&format!("angle: {} π", model.angle / PI))
         .color(BLACK)
-        .x(app.mouse.x)
-        .y(app.mouse.y);
+        .y(MARGIN as f32 - 2.0 * HEIGHT as f32 / 3.0);
     draw.to_frame(app, &frame).unwrap();
 }
