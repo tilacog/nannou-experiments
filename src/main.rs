@@ -8,6 +8,7 @@ pub const Y_OFFSET: f32 = (HEIGHT / 2) as f32;
 const MARGIN: u32 = 50;
 
 mod grid;
+mod segment;
 mod surface;
 
 use grid::Grid;
