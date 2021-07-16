@@ -33,8 +33,8 @@ impl Surface {
 
                 let y0 = p0.y * y_coef + p0.z * z_coef * z_scale;
                 let y1 = p1.y * y_coef + p1.z * z_coef * z_scale;
-                let q0 = vec2(p0.x, y0);
-                let q1 = vec2(p1.x, y1);
+                let q0 = pt2(p0.x, y0);
+                let q1 = pt2(p1.x, y1);
                 draw.line().start(q0).end(q1).weight(2.5).color(line_color);
             })
     }

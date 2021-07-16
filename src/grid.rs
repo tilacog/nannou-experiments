@@ -22,7 +22,7 @@ impl Grid {
         let scale_v: f32 = HEIGHT as f32 / self.num_lines as f32;
 
         ys.cartesian_product(xs)
-            .map(move |(y, x)| vec2(x * scale_h - X_OFFSET, y * scale_v - Y_OFFSET))
+            .map(move |(y, x)| pt2(x * scale_h - X_OFFSET, y * scale_v - Y_OFFSET))
     }
 
     pub fn _draw(&self, draw: &Draw) {
