@@ -8,11 +8,11 @@ pub struct Segment {
 
 impl Segment {
     pub fn draw(&self, draw: &Draw) {
-        let line_color = hsva(0.0, 0.0, 0.0, 0.75);
+        let line_color = hsva(0.0, 0.0, 0.5, 0.75);
         draw.line()
             .start(self.start)
             .end(self.end)
-            .weight(1.0)
+            .weight(1.1)
             .color(line_color);
     }
 }

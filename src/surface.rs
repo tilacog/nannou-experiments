@@ -3,16 +3,16 @@ use crate::segment::Segment;
 use itertools::Itertools;
 use nannou::{noise::*, prelude::*};
 
-const SCALE: f64 = 0.006;
+const SCALE: f64 = 0.01;
 
 pub struct Surface {
-    noise: Perlin,
+    noise: OpenSimplex,
 }
 
 impl Surface {
     pub fn new() -> Surface {
         Surface {
-            noise: Perlin::new(),
+            noise: OpenSimplex::new(),
         }
     }
 
