@@ -1,4 +1,3 @@
-use crate::grid::Grid;
 use nannou::prelude::*;
 
 #[derive(Debug)]
