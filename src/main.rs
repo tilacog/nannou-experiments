@@ -33,7 +33,8 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
-    let grid = Grid::new(15, 50);
+    let grid = Grid::new(15, 500);
+    // let grid = Grid::new(2, 2);
     let surface = Surface::new();
     let angle = PI / 2.5;
     Model {
