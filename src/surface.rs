@@ -3,6 +3,8 @@ use crate::segment::Segment;
 use itertools::Itertools;
 use nannou::{noise::*, prelude::*};
 
+const SCALE: f64 = 0.006;
+
 pub struct Surface {
     noise: Perlin,
 }
@@ -14,16 +16,17 @@ impl Surface {
         }
     }
 
-    fn project_grid_of_points(&self, grid_2d: Vec<Vec<Point2>>) -> Vec<Vec<Point3>> {
-        let scl1 = 0.005;
+    fn project_grid_of_points(&self, grid_2d: Vec<Vec<Point2>>, offset: Vec2) -> Vec<Vec<Point3>> {
         let mut grid_3d = Vec::new();
         for line_2d in grid_2d.into_iter() {
             let mut line_3d = Vec::new();
             for point_2d in line_2d.into_iter() {
-                let z = self
-                    .noise
-                    .get([point_2d.x as f64 * scl1, point_2d.y as f64 * scl1])
-                    as f32;
+                let z = {
+                    let point = point_2d + offset;
+                    let x = point.x as f64 * SCALE;
+                    let y = point.y as f64 * SCALE;
+                    self.noise.get([x, y]) as f32
+                };
                 let point_3d = point_2d.extend(z);
                 line_3d.push(point_3d)
             }
@@ -53,9 +56,9 @@ impl Surface {
         segment_grid
     }
 
-    pub fn draw(&self, grid: &Grid, draw: &Draw, angle: f32) {
+    pub fn draw(&self, grid: &Grid, draw: &Draw, angle: f32, offset: Vec2) {
         let point_2d_grid = grid.grid_of_points();
-        let point_3d_grid = self.project_grid_of_points(point_2d_grid);
+        let point_3d_grid = self.project_grid_of_points(point_2d_grid, offset);
         let segment_grid = self.segment_grid(point_3d_grid, angle);
 
         let mut maximums = vec![f32::NEG_INFINITY; grid.resolution as usize];

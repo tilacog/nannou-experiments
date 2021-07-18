@@ -1,8 +1,8 @@
 //! https://nb.paulbutler.org/surface-projection/
 use nannou::prelude::*;
 
-pub const WIDTH: u32 = 500;
-pub const HEIGHT: u32 = 500;
+pub const WIDTH: u32 = 1500;
+pub const HEIGHT: u32 = 1500;
 pub const X_OFFSET: f32 = (WIDTH / 2) as f32;
 pub const Y_OFFSET: f32 = (HEIGHT / 2) as f32;
 const MARGIN: u32 = 50;
@@ -22,10 +22,11 @@ struct Model {
     grid: Grid,
     surface: Surface,
     angle: f32,
+    offset: Vec2,
 }
 
 fn model(app: &App) -> Model {
-    app.set_loop_mode(LoopMode::loop_once());
+    // app.set_loop_mode(LoopMode::loop_once());
     let _window = app
         .new_window()
         .size(WIDTH + MARGIN * 2, HEIGHT + MARGIN * 2)
@@ -33,18 +34,26 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
-    let grid = Grid::new(15, 500);
+    let grid = Grid::new(50, 500);
     let surface = Surface::new();
     let angle = PI / 2.5;
     Model {
         grid,
         surface,
         angle,
+        offset: Vec2::ZERO,
     }
 }
 
-fn update(_app: &App, _model: &mut Model, _update: Update) {
-    // model.angle = app.mouse.x;
+fn update(app: &App, model: &mut Model, _update: Update) {
+    // model.angle = vinny_map(
+    //     app.mouse.x,
+    //     app.window_rect().left(),
+    //     app.window_rect().right(),
+    //     0.0,
+    //     TAU,
+    // );
+    model.offset += vec2(app.mouse.x, app.mouse.y).normalize() * -3.0;
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
@@ -52,11 +61,32 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.background().color(WHITE);
     // model.grid.draw(&draw);
 
-    model.surface.draw(&model.grid, &draw, model.angle);
+    model
+        .surface
+        .draw(&model.grid, &draw, model.angle, model.offset);
 
-    // debug angle info
-    draw.text(&format!("angle: {} π", model.angle / PI))
+    // debug angle
+    draw.text(&format!("angle: {:.2} π", model.angle / PI))
         .color(BLACK)
-        .y(MARGIN as f32 - 2.0 * HEIGHT as f32 / 3.0);
+        .xy(app.window_rect().bottom_right() * 0.8);
+
+    // debug offset
+    draw.text(&format!(
+        "offset: {:.2}, {:.2}",
+        model.offset.x, model.offset.y
+    ))
+    .color(BLACK)
+    .xy(app.window_rect().bottom_left() * 0.8);
+
+    // debug.mouse
+    draw.text(&format!("mouse: {}, {}", app.mouse.x, app.mouse.y))
+        .color(BLACK)
+        .x(app.mouse.x)
+        .y(app.mouse.y);
+
     draw.to_frame(app, &frame).unwrap();
+}
+
+fn vinny_map(n: f32, start1: f32, stop1: f32, start2: f32, stop2: f32) -> f32 {
+    (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
 }
