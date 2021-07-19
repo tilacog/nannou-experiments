@@ -2,7 +2,7 @@
 use nannou::prelude::*;
 
 pub const WIDTH: u32 = 3000;
-pub const HEIGHT: u32 = 1000;
+pub const HEIGHT: u32 = 2000;
 pub const X_OFFSET: f32 = (WIDTH / 2) as f32;
 pub const Y_OFFSET: f32 = (HEIGHT / 2) as f32;
 const MARGIN: u32 = 50;
@@ -58,6 +58,6 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.to_frame(app, &frame).unwrap();
 }
 
-fn _vinny_map(n: f32, start1: f32, stop1: f32, start2: f32, stop2: f32) -> f32 {
+fn vinny_map(n: f32, start1: f32, stop1: f32, start2: f32, stop2: f32) -> f32 {
     (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
 }

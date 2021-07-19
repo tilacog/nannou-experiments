@@ -1,8 +1,8 @@
 use crate::grid::Grid;
 use crate::segment::Segment;
+use crate::vinny_map;
 use itertools::Itertools;
 use nannou::{noise::*, prelude::*};
-
 const SCALE: f64 = 0.01;
 
 pub struct Surface {
@@ -62,14 +62,15 @@ impl Surface {
         let segment_grid = self.segment_grid(point_3d_grid, angle);
 
         let mut maximums = vec![f32::NEG_INFINITY; grid.resolution as usize];
+        let color_spectrum = build_color_spectrum(grid.num_lines, grid.resolution, self.noise);
 
         for (line_pos, line) in segment_grid.into_iter().enumerate() {
-            let color = {
-                let hue = line_pos as f32 / grid.num_lines as f32;
-                hsva(hue, 1.0, 0.5, 0.75)
-            };
-
             for (pos, segment) in line.into_iter().enumerate() {
+                let color = {
+                    let hue = color_spectrum[line_pos][pos];
+                    hsva(hue, 1.0, 0.5, 0.75)
+                };
+
                 let local_max = &mut maximums[pos];
                 if segment.start.y > *local_max {
                     *local_max = segment.start.y;
@@ -78,4 +79,38 @@ impl Surface {
             }
         }
     }
+}
+
+fn build_color_spectrum(x: u32, y: u32, noise: OpenSimplex) -> Vec<Vec<f32>> {
+    let mut min = 0.0;
+    let mut max = 0.0;
+    let scale = SCALE * 0.045;
+
+    let mut rows = Vec::new();
+    for i in 0..x {
+        let mut cols = Vec::new();
+        for j in 0..y {
+            let noise = noise.get([
+                i as f64 * scale,
+                j as f64 * scale,
+                (i as f64 * j as f64).sqrt() * scale,
+            ]) as f32;
+            if noise > max {
+                max = noise
+            }
+            if noise < min {
+                min = noise
+            }
+            cols.push(noise)
+        }
+        rows.push(cols)
+    }
+
+    // calibrate
+    for row in rows.iter_mut() {
+        for col in row.iter_mut() {
+            *col = vinny_map(*col, min, max, 0.0, 1.0);
+        }
+    }
+    rows
 }
