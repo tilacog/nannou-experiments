@@ -7,8 +7,12 @@ pub struct Segment {
 }
 
 impl Segment {
-    pub fn draw(&self, draw: &Draw) {
-        let line_color = hsva(0.0, 0.0, 0.5, 0.75);
+    pub fn draw(&self, draw: &Draw, color: Option<Hsva>) {
+        let line_color = if let Some(color) = color {
+            color
+        } else {
+            hsva(0.0, 0.0, 0.5, 0.75)
+        };
         draw.line()
             .start(self.start)
             .end(self.end)

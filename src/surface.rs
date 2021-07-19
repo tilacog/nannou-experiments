@@ -63,12 +63,17 @@ impl Surface {
 
         let mut maximums = vec![f32::NEG_INFINITY; grid.resolution as usize];
 
-        for line in segment_grid.into_iter() {
+        for (line_pos, line) in segment_grid.into_iter().enumerate() {
+            let color = {
+                let hue = line_pos as f32 / grid.num_lines as f32;
+                hsva(hue, 1.0, 0.5, 0.75)
+            };
+
             for (pos, segment) in line.into_iter().enumerate() {
                 let local_max = &mut maximums[pos];
                 if segment.start.y > *local_max {
                     *local_max = segment.start.y;
-                    segment.draw(&draw);
+                    segment.draw(&draw, Some(color));
                 }
             }
         }
