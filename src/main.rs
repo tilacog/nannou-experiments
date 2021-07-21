@@ -3,7 +3,7 @@ mod star;
 use star::StarGroup;
 
 const WIDTH: u32 = 3000;
-const HEIGHT: u32 = 3000;
+const HEIGHT: u32 = WIDTH * 16 / 9;
 const LEFT: f32 = WIDTH as f32 * -0.5;
 const RIGHT: f32 = WIDTH as f32 * 0.5;
 const TOP: f32 = HEIGHT as f32 * 0.5;
@@ -43,7 +43,7 @@ fn view(app: &App, _model: &Model, frame: Frame) {
     let mut attempts = 0;
 
     while points.len() < 50_000 && attempts < 100_000 {
-        let random_x = map_range(random_f32(), 0.0, 1.0, LEFT, RIGHT);
+        let random_x = map_range(random_f32(), 0.0, 1.0, LEFT * 1.5, RIGHT * 1.5);
         let random_y = map_range(random_f32(), 0.0, 1.0, BOTTOM, TOP);
         let random_point = pt2(random_x, random_y);
         let mut should_insert = true;
@@ -68,18 +68,18 @@ fn view(app: &App, _model: &Model, frame: Frame) {
         star_group.update();
         star_group.draw(&draw);
 
-        if count % 100 == 0 {
-            black_layer(&draw, &app)
+        if count % 80 == 0 {
+            black_layer(&draw, app.window_rect(), 0.1)
         }
     }
-    black_layer(&draw, &app);
-
+    black_layer(&draw, app.window_rect(), 0.5);
+    app.main_window().capture_frame("/tmp/stars.png");
     draw.to_frame(app, &frame).unwrap();
 }
 
-fn black_layer(draw: &Draw, app: &App) {
+fn black_layer(draw: &Draw, rect: Rect, alpha: f32) {
     draw.rect()
-        .xy(app.window_rect().xy())
-        .wh(app.window_rect().wh())
-        .color(hsla(0.0, 0.0, 0.0, 0.3));
+        .xy(rect.xy())
+        .wh(rect.wh())
+        .color(hsla(0.0, 0.0, 0.0, alpha));
 }
