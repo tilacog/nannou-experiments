@@ -25,7 +25,7 @@ impl Surface {
                     let point = point_2d + offset;
                     let x = point.x as f64 * SCALE;
                     let y = point.y as f64 * SCALE;
-                    self.noise.get([x, y]) as f32
+                    self.noise.get([x, y, offset.x as f64]) as f32
                 };
                 let point_3d = point_2d.extend(z);
                 line_3d.push(point_3d)

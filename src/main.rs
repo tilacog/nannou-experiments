@@ -26,7 +26,7 @@ struct Model {
 }
 
 fn model(app: &App) -> Model {
-    app.set_loop_mode(LoopMode::loop_once());
+    // app.set_loop_mode(LoopMode::loop_once());
     let _window = app
         .new_window()
         .size(WIDTH + MARGIN * 2, HEIGHT + MARGIN * 2)
@@ -45,7 +45,9 @@ fn model(app: &App) -> Model {
     }
 }
 
-fn update(_app: &App, _model: &mut Model, _update: Update) {}
+fn update(_app: &App, model: &mut Model, _update: Update) {
+    model.offset += vec2(0.025, 0.0);
+}
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
