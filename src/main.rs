@@ -1,12 +1,13 @@
-use itertools::Itertools;
 use nannou::prelude::*;
 mod star;
 use star::StarGroup;
 
-const WIDTH: u32 = 700;
-const HEIGHT: u32 = 700;
-const GRID_LENGTH: u32 = 5;
-const SEGMENT: u32 = HEIGHT / GRID_LENGTH;
+const WIDTH: u32 = 3000;
+const HEIGHT: u32 = 3000;
+const LEFT: f32 = WIDTH as f32 * -0.5;
+const RIGHT: f32 = WIDTH as f32 * 0.5;
+const TOP: f32 = HEIGHT as f32 * 0.5;
+const BOTTOM: f32 = HEIGHT as f32 * -0.5;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -36,46 +37,49 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 
 fn view(app: &App, _model: &Model, frame: Frame) {
     let draw = app.draw();
-    draw.background().color(CRIMSON);
-    draw_grid(&draw);
-    // model.star_group.draw(&draw);
+    draw.background().color(BLACK);
+    let star_radius = 60.0;
+    let mut points: Vec<Point2> = vec![];
+    let mut attempts = 0;
 
-    let xs = (0..GRID_LENGTH).into_iter().map(|x| x * SEGMENT);
-    let ys = (0..GRID_LENGTH).into_iter().map(|y| y * SEGMENT);
-    let d = origin_at_top_left(&draw);
-    for (x, y) in xs.cartesian_product(ys) {
-        let point = vec2((x + SEGMENT / 2) as f32, (y + SEGMENT / 2) as f32);
-        // d.ellipse().xy(dbg!(point)).color(BLACK);
-        let mut star_group = StarGroup::new(5, 30.0);
-        star_group.random_phase();
-        star_group.update();
-        star_group.xy(point);
-        star_group.draw(&d)
+    while points.len() < 50_000 && attempts < 100_000 {
+        let random_x = map_range(random_f32(), 0.0, 1.0, LEFT, RIGHT);
+        let random_y = map_range(random_f32(), 0.0, 1.0, BOTTOM, TOP);
+        let random_point = pt2(random_x, random_y);
+        let mut should_insert = true;
+        for point in &points {
+            if point.distance(random_point) < star_radius * 1.0 {
+                should_insert = false;
+                break;
+            }
+        }
+        if should_insert {
+            points.push(random_point)
+        }
+        attempts += 1;
     }
+    dbg!(points.len(), attempts);
+
+    for (count, point) in points.into_iter().enumerate() {
+        let mut star_group = StarGroup::new(5, star_radius);
+        star_group.random_phase();
+        star_group.xy(point);
+        star_group.rotate(random_f32() * TAU);
+        star_group.update();
+        star_group.draw(&draw);
+
+        if count % 100 == 0 {
+            black_layer(&draw, &app)
+        }
+    }
+    black_layer(&draw, &app);
+
     draw.to_frame(app, &frame).unwrap();
 }
 
-fn origin_at_top_left(draw: &Draw) -> Draw {
-    draw.x(WIDTH as f32 / -2.0).y(HEIGHT as f32 / -2.0)
-}
-
-fn draw_grid(draw: &Draw) {
-    let draw = origin_at_top_left(&draw);
-
-    // origin
-    // draw.ellipse().w(20.0).h(20.0).color(BLACK);
-
-    let xs = (1..GRID_LENGTH).into_iter().map(|x| x * SEGMENT);
-    let ys = (1..GRID_LENGTH).into_iter().map(|y| y * SEGMENT);
-    for (x, y) in xs.zip(ys) {
-        // draw a cross
-        let v1 = vec2(x as f32, 0.0);
-        let v2 = vec2(x as f32, HEIGHT as f32);
-
-        let h1 = vec2(0.0, y as f32);
-        let h2 = vec2(WIDTH as f32, y as f32);
-
-        draw.line().start(v1).end(v2);
-        draw.line().start(h1).end(h2);
-    }
+fn black_layer(draw: &Draw, app: &App) {
+    draw.rect()
+        .xy(app.window_rect().xy())
+        .wh(app.window_rect().wh())
+        .color(hsla(0.0, 0.0, 0.0, 0.3));
 }
