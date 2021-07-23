@@ -1,7 +1,8 @@
 use nannou::prelude::*;
 
-const WIDTH: u32 = 900 * 4;
-const HEIGHT: u32 = 400 * 4;
+const SCALE: u32 = 3;
+const WIDTH: u32 = 900 * SCALE;
+const HEIGHT: u32 = 400 * SCALE;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -24,18 +25,19 @@ fn update(_app: &App, _model: &mut Model, _update: Update) {}
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
+    let draw = draw.xy(pt2(WIDTH as f32 / 3.5, 0.0));
 
-    let gap = 100.0;
-    let mut radius = 300.0;
+    let gap = (WIDTH / 28) as f32;
+    let mut radius = gap * 3.0;
 
     loop {
         model.draw(&draw, radius, gap);
-        if radius > app.window_rect().top_right().distance(Point2::ZERO) {
+        if radius > app.window_rect().top_left().distance(Point2::ZERO) * 2.0 {
             break;
         }
         radius += gap * 2.0;
     }
-
+    app.main_window().capture_frame("/tmp/red-circles.png");
     draw.to_frame(app, &frame).unwrap();
 }
 
@@ -51,7 +53,7 @@ impl Model {
 
     fn points(&self, radius: f32) -> impl Iterator<Item = Point2> {
         itertools::unfold(0.0, move |radian| {
-            *radian += 0.05;
+            *radian += 0.025;
             if *radian < TAU {
                 let x = radian.cos() * radius;
                 let y = radian.sin() * radius;
