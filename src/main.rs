@@ -2,9 +2,9 @@ use itertools::Itertools;
 use nannou::{noise::*, prelude::*};
 use std::iter::successors;
 
-const WIDTH: f32 = 1_000.0;
-const HEIGHT: f32 = 1_000.0;
-const SCALE: f32 = 1.25;
+const WIDTH: f32 = 850.0;
+const HEIGHT: f32 = 850.0;
+const SCALE: f32 = 4.0;
 const HALF_SCALE: f32 = SCALE / 2.0;
 const NOISE_SCALE: f64 = 0.01;
 
@@ -17,7 +17,8 @@ struct Model {
 }
 
 fn model(app: &App) -> Model {
-    app.set_loop_mode(LoopMode::loop_once());
+    // app.set_loop_mode(LoopMode::loop_once());
+    app.set_loop_mode(LoopMode::rate_fps(10.0));
     let _window = app
         .new_window()
         .size(WIDTH as u32, HEIGHT as u32)
@@ -39,6 +40,8 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let right = app.window_rect().right();
     let top = app.window_rect().top();
     let bottom = app.window_rect().bottom();
+
+    let fps = frame.nth();
 
     let xs = successors(Some(left), |n| {
         let next = n + SCALE;
@@ -62,7 +65,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
         let noise = {
             let x = x as f64 * NOISE_SCALE;
             let y = y as f64 * NOISE_SCALE;
-            let z = (x * x + y * y).sqrt() as f64 * NOISE_SCALE;
+            let z = fps as f64 * NOISE_SCALE;
             model.noise.get([x, y, z]) as f32
         };
 
@@ -70,9 +73,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
             let hue: f32 = map_range(noise, -0.5, 0.5, 0.0, 1.0);
             hue.clamp(0.0, 1.0)
         };
-
         let value = if in_range(hue) { 1.0 } else { 0.0 };
-
         let color = hsv(hue.clamp(0.0, 1.0), 1.0, value);
         draw.rect()
             .x_y(x + HALF_SCALE, y + HALF_SCALE)
@@ -80,6 +81,12 @@ fn view(app: &App, model: &Model, frame: Frame) {
             .color(color);
     }
 
+    let fname = format!("/tmp/ani_{:05}.png", frame.nth());
+    app.main_window().capture_frame(&fname);
+
+    if frame.nth() > 500 {
+        std::process::exit(0)
+    }
     draw.to_frame(app, &frame).unwrap();
 }
 
