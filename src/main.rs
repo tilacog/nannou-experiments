@@ -2,9 +2,9 @@ use itertools::Itertools;
 use nannou::{noise::*, prelude::*};
 use std::iter::successors;
 
-const WIDTH: f32 = 850.0;
-const HEIGHT: f32 = 850.0;
-const SCALE: f32 = 4.0;
+const WIDTH: f32 = 2_000.0;
+const HEIGHT: f32 = 2_000.0;
+const SCALE: f32 = 1.25;
 const HALF_SCALE: f32 = SCALE / 2.0;
 const NOISE_SCALE: f64 = 0.01;
 
@@ -17,8 +17,7 @@ struct Model {
 }
 
 fn model(app: &App) -> Model {
-    // app.set_loop_mode(LoopMode::loop_once());
-    app.set_loop_mode(LoopMode::rate_fps(10.0));
+    app.set_loop_mode(LoopMode::loop_once());
     let _window = app
         .new_window()
         .size(WIDTH as u32, HEIGHT as u32)
