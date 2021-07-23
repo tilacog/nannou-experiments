@@ -4,9 +4,8 @@ use std::iter::successors;
 
 const WIDTH: f32 = 1_000.0;
 const HEIGHT: f32 = 1_000.0;
-const SCALE: f32 = 5.0;
+const SCALE: f32 = 1.25;
 const HALF_SCALE: f32 = SCALE / 2.0;
-const TWO_THIRDS_SCALE: f32 = SCALE * 2.0 / 3.0;
 const NOISE_SCALE: f64 = 0.01;
 
 fn main() {
@@ -60,23 +59,50 @@ fn view(app: &App, model: &Model, frame: Frame) {
     });
 
     for (x, y) in xs.cartesian_product(ys) {
-        let pre_value = {
+        let noise = {
             let x = x as f64 * NOISE_SCALE;
             let y = y as f64 * NOISE_SCALE;
-            let z = (x * y).abs().sqrt() as f64 * NOISE_SCALE;
+            let z = (x * x + y * y).sqrt() as f64 * NOISE_SCALE;
             model.noise.get([x, y, z]) as f32
         };
-        let value = match (pre_value * 10.0) as u32 % 2 == 0 {
-            true => 0.0,
-            false => 1.0,
+
+        let hue = {
+            let hue: f32 = map_range(noise, -0.5, 0.5, 0.0, 1.0);
+            hue.clamp(0.0, 1.0)
         };
 
-        let color = hsv(0.0, 1.0, value);
+        let value = if in_range(hue) { 1.0 } else { 0.0 };
+
+        let color = hsv(hue.clamp(0.0, 1.0), 1.0, value);
         draw.rect()
             .x_y(x + HALF_SCALE, y + HALF_SCALE)
-            .w_h(TWO_THIRDS_SCALE, TWO_THIRDS_SCALE)
+            .w_h(SCALE, SCALE)
             .color(color);
     }
 
     draw.to_frame(app, &frame).unwrap();
+}
+
+fn in_range(n: f32) -> bool {
+    if n < 0.1 {
+        true
+    } else if n > 0.1 && n < 0.2 {
+        false
+    } else if n > 0.2 && n < 0.3 {
+        true
+    } else if n > 0.3 && n < 0.4 {
+        false
+    } else if n > 0.4 && n < 0.5 {
+        true
+    } else if n > 0.5 && n < 0.6 {
+        false
+    } else if n > 0.7 && n < 0.8 {
+        true
+    } else if n > 0.8 && n < 0.9 {
+        false
+    } else if n > 0.9 && n < 1.0 {
+        true
+    } else {
+        false
+    }
 }
