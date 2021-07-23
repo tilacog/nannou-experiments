@@ -91,25 +91,6 @@ fn view(app: &App, model: &Model, frame: Frame) {
 }
 
 fn in_range(n: f32) -> bool {
-    if n < 0.1 {
-        true
-    } else if n > 0.1 && n < 0.2 {
-        false
-    } else if n > 0.2 && n < 0.3 {
-        true
-    } else if n > 0.3 && n < 0.4 {
-        false
-    } else if n > 0.4 && n < 0.5 {
-        true
-    } else if n > 0.5 && n < 0.6 {
-        false
-    } else if n > 0.7 && n < 0.8 {
-        true
-    } else if n > 0.8 && n < 0.9 {
-        false
-    } else if n > 0.9 && n < 1.0 {
-        true
-    } else {
-        false
-    }
+    let int = (n * 10.0).round() as u32;
+    int % 2 < 1
 }
