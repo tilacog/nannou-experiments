@@ -26,16 +26,17 @@ fn update(_app: &App, _model: &mut Model, _update: Update) {}
 fn view(app: &App, _model: &Model, frame: Frame) {
     let draw = app.draw().scale_axes(vec3(WIDTH, HEIGHT, 1.0));
     draw.background().color(BLACK);
-
-    let radius = 0.25;
-    let count = 100;
+    let dot_size = 0.05;
+    let phi: f32 = (1.0 + 5.0.sqrt()) / 2.0;
+    let radius = (0.5).sqrt(); // from center to a corner
+    let count = 1000;
     for i in 0..count {
         let fraction = i as f32 / count as f32;
-        let angle = fraction;
+        let angle = i as f32 / phi;
         let distance = fraction * radius;
         let x = (angle * TAU).cos() * distance;
         let y = (angle * TAU).sin() * distance;
-        let circle_radius = 0.01 * Vec2::ONE;
+        let circle_radius = fraction * dot_size * Vec2::ONE;
         draw.ellipse().x_y(x, y).wh(circle_radius).resolution(20.0);
     }
     draw.to_frame(app, &frame).unwrap();
