@@ -27,14 +27,15 @@ fn view(app: &App, _model: &Model, frame: Frame) {
     let draw = app.draw().scale_axes(vec3(WIDTH, HEIGHT, 1.0));
     draw.background().color(BLACK);
 
-    let count = 10;
+    let radius = 0.25;
+    let count = 100;
     for i in 0..count {
-        let angle = i as f32 / count as f32;
-        let radius = 0.1;
+        let fraction = i as f32 / count as f32;
+        let angle = fraction;
         let x = (angle * TAU).cos() * radius;
         let y = (angle * TAU).sin() * radius;
-
-        draw.ellipse().x_y(x, y).w_h(0.05, 0.05).resolution(20.0);
+        let circle_radius = 0.01 * Vec2::ONE;
+        draw.ellipse().x_y(x, y).wh(circle_radius).resolution(20.0);
     }
     draw.to_frame(app, &frame).unwrap();
 }
