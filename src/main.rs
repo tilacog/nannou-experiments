@@ -1,5 +1,8 @@
 use nannou::prelude::*;
 
+const WIDTH: f32 = 500.0;
+const HEIGHT: f32 = 500.0;
+
 fn main() {
     nannou::app(model).update(update).run();
 }
@@ -10,7 +13,7 @@ fn model(app: &App) -> Model {
     app.set_loop_mode(LoopMode::loop_once());
     let _window = app
         .new_window()
-        .size(500, 500)
+        .size(WIDTH as u32, HEIGHT as u32)
         .view(view)
         .build()
         .expect("failed to build window");
