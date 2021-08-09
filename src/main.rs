@@ -26,5 +26,15 @@ fn update(_app: &App, _model: &mut Model, _update: Update) {}
 fn view(app: &App, _model: &Model, frame: Frame) {
     let draw = app.draw().scale_axes(vec3(WIDTH, HEIGHT, 1.0));
     draw.background().color(BLACK);
+
+    let count = 10;
+    for i in 0..count {
+        let angle = i as f32 / count as f32;
+        let radius = 0.1;
+        let x = (angle * TAU).cos() * radius;
+        let y = (angle * TAU).sin() * radius;
+
+        draw.ellipse().x_y(x, y).w_h(0.05, 0.05).resolution(20.0);
+    }
     draw.to_frame(app, &frame).unwrap();
 }
