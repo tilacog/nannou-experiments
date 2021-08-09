@@ -24,7 +24,7 @@ fn model(app: &App) -> Model {
 fn update(_app: &App, _model: &mut Model, _update: Update) {}
 
 fn view(app: &App, _model: &Model, frame: Frame) {
-    let draw = app.draw();
+    let draw = app.draw().scale_axes(vec3(WIDTH, HEIGHT, 1.0));
     draw.background().color(BLACK);
     draw.to_frame(app, &frame).unwrap();
 }
