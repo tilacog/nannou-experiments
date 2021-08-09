@@ -32,8 +32,9 @@ fn view(app: &App, _model: &Model, frame: Frame) {
     for i in 0..count {
         let fraction = i as f32 / count as f32;
         let angle = fraction;
-        let x = (angle * TAU).cos() * radius;
-        let y = (angle * TAU).sin() * radius;
+        let distance = fraction * radius;
+        let x = (angle * TAU).cos() * distance;
+        let y = (angle * TAU).sin() * distance;
         let circle_radius = 0.01 * Vec2::ONE;
         draw.ellipse().x_y(x, y).wh(circle_radius).resolution(20.0);
     }
