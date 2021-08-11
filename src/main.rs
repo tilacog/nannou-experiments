@@ -38,7 +38,7 @@ fn draw_fractal(position: Vec2, size: f32, depth: usize, sides: usize, draw: &Dr
     let scale = 0.5;
     for i in 0..sides {
         let fraction = i as f32 * increment;
-        let angle = fraction;
+        let angle = fraction - 0.25;
         if depth > 0 {
             let new_size = size * scale;
             let new_position = position + polar(angle, new_size);
