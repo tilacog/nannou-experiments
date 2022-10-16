@@ -5,6 +5,10 @@ const RATIO: f32 = 1.4142;
 const HEIGHT: f32 = 500.0;
 const WIDTH: f32 = HEIGHT * RATIO;
 const MARGIN: f32 = HEIGHT / 10.0;
+const ROW_LENGTH: usize = 12;
+const NUM_POINTS: usize = ROW_LENGTH * 10;
+const POINT_DISTANCE: f32 = 50.0;
+const GRID_SIZE: f32 = 5.0;
 
 // * Model
 struct Model {
@@ -38,7 +42,7 @@ struct Grid {
 }
 
 impl Grid {
-    fn new(num_points: usize, row_size: usize, horizontal_spacing: f32) -> Grid {
+    fn new(num_points: usize, row_length: usize, horizontal_spacing: f32) -> Grid {
         // height of an equilateral triangle
         let vertical_spacing = horizontal_spacing * (3.0).sqrt() / 2.0;
 
@@ -48,10 +52,10 @@ impl Grid {
         // create points and add them to the graph
         for p in 0..num_points {
             // vertical position is determined by division
-            let y = (p / row_size) as f32 * vertical_spacing;
-            let x_offset = (p / row_size % 2 == 0) as usize as f32 * horizontal_spacing / 2.0;
+            let y = (p / row_length) as f32 * vertical_spacing;
+            let x_offset = (p / row_length % 2 == 0) as usize as f32 * horizontal_spacing / 2.0;
             // horizontal position is determined by modulo
-            let x = (p % row_size) as f32 * horizontal_spacing + x_offset;
+            let x = (p % row_length) as f32 * horizontal_spacing + x_offset;
 
             let index = graph.add_node(Point2::new(x, -y));
             indices.push(index);
@@ -60,8 +64,8 @@ impl Grid {
         // link nodes
         for position in 0..indices.len() {
             let current = &indices[position];
-            let is_last_column = (position + 1) % row_size == 0;
-            let is_last_row = position + row_size >= num_points;
+            let is_last_column = (position + 1) % row_length == 0;
+            let is_last_row = position + row_length >= num_points;
 
             // (0, 1): right neighbor
             if !is_last_column {
@@ -72,14 +76,14 @@ impl Grid {
 
             // (1, 0): bottom neighbor
             if !is_last_row {
-                let coordinate = position + row_size;
+                let coordinate = position + row_length;
                 let index = indices[coordinate];
                 graph.add_edge(*current, index, ());
             }
 
             // (1, 1): bottom right neighbor
             if !is_last_column && !is_last_row {
-                let coordinate = position + row_size + 1;
+                let coordinate = position + row_length + 1;
                 let index = indices[coordinate];
                 graph.add_edge(*current, index, ());
             }
@@ -93,15 +97,14 @@ impl Grid {
             draw.ellipse()
                 .color(STEELBLUE)
                 .xy(point.weight)
-                .w(5.0)
-                .h(5.0);
+                .w_h(GRID_SIZE, GRID_SIZE);
         }
     }
 }
 
 impl Default for Grid {
     fn default() -> Self {
-        Self::new(12 * 10, 12, 50.0)
+        Self::new(NUM_POINTS, ROW_LENGTH, POINT_DISTANCE)
     }
 }
 
