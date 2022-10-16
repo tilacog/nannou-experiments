@@ -42,7 +42,10 @@ impl Grid {
         // height of an equilateral triangle
         let vertical_spacing = horizontal_spacing * (3.0).sqrt() / 2.0;
 
-        let mut points = UnGraph::<Point2, ()>::new_undirected();
+        let mut graph = UnGraph::<Point2, ()>::new_undirected();
+        let mut indices = vec![];
+
+        // create points and add them to the graph
         for p in 0..num_points {
             // vertical position is determined by division
             let y = (p / row_size) as f32 * vertical_spacing;
@@ -50,9 +53,39 @@ impl Grid {
             // horizontal position is determined by modulo
             let x = (p % row_size) as f32 * horizontal_spacing + x_offset;
 
-            points.add_node(Point2::new(x, -y));
+            let index = graph.add_node(Point2::new(x, -y));
+            indices.push(index);
         }
-        Grid { points }
+
+        // link nodes
+        for position in 0..indices.len() {
+            let current = &indices[position];
+            let is_last_column = (position + 1) % row_size == 0;
+            let is_last_row = position + row_size >= num_points;
+
+            // (0, 1): right neighbor
+            if !is_last_column {
+                let coordinate = position + 1;
+                let index = indices[coordinate];
+                graph.add_edge(*current, index, ());
+            }
+
+            // (1, 0): bottom neighbor
+            if !is_last_row {
+                let coordinate = position + row_size;
+                let index = indices[coordinate];
+                graph.add_edge(*current, index, ());
+            }
+
+            // (1, 1): bottom right neighbor
+            if !is_last_column && !is_last_row {
+                let coordinate = position + row_size + 1;
+                let index = indices[coordinate];
+                graph.add_edge(*current, index, ());
+            }
+        }
+
+        Grid { points: graph }
     }
 
     fn draw(&self, draw: &Draw) {
