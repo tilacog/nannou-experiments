@@ -99,6 +99,29 @@ impl Grid {
                 .xy(point.weight)
                 .w_h(GRID_SIZE, GRID_SIZE);
         }
+
+
+        {
+            // debug a random point and its neighbors
+            //
+            // There's currently a bug where edges are being made for non-adjacent points. This is
+            // most likely because the algorithm was conceived for a square grid and we are using a
+            // triangular one.
+            let index = petgraph::graph::NodeIndex::new(NUM_POINTS / 2);
+            let point = self.points[index];
+            draw.ellipse()
+                .color(TOMATO)
+                .xy(point)
+                .w_h(GRID_SIZE * 2.0, GRID_SIZE * 2.0);
+
+            for neighbor in self.points.neighbors(index) {
+                let point = self.points[neighbor];
+                draw.ellipse()
+                    .color(PLUM)
+                    .xy(point)
+                    .w_h(GRID_SIZE * 2.0, GRID_SIZE * 2.0);
+            }
+        }
     }
 }
 
