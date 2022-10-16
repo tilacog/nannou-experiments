@@ -1,4 +1,5 @@
 use nannou::prelude::*;
+use petgraph::graph::UnGraph;
 
 const RATIO: f32 = 1.4142;
 const HEIGHT: f32 = 500.0;
@@ -33,7 +34,7 @@ impl Model {
 
 // * Grid
 struct Grid {
-    points: Vec<Point2>,
+    points: UnGraph<Point2, ()>,
 }
 
 impl Grid {
@@ -41,7 +42,7 @@ impl Grid {
         // height of an equilateral triangle
         let vertical_spacing = horizontal_spacing * (3.0).sqrt() / 2.0;
 
-        let mut points = vec![];
+        let mut points = UnGraph::<Point2, ()>::new_undirected();
         for p in 0..num_points {
             // vertical position is determined by division
             let y = (p / row_size) as f32 * vertical_spacing;
@@ -49,14 +50,18 @@ impl Grid {
             // horizontal position is determined by modulo
             let x = (p % row_size) as f32 * horizontal_spacing + x_offset;
 
-            points.push(Point2::new(x, -y))
+            points.add_node(Point2::new(x, -y));
         }
         Grid { points }
     }
 
     fn draw(&self, draw: &Draw) {
-        for point in &self.points {
-            draw.ellipse().color(STEELBLUE).xy(*point).w(5.0).h(5.0);
+        for point in self.points.raw_nodes() {
+            draw.ellipse()
+                .color(STEELBLUE)
+                .xy(point.weight)
+                .w(5.0)
+                .h(5.0);
         }
     }
 }
