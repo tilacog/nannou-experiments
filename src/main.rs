@@ -15,10 +15,9 @@ const CIRCUMRADIUS: f32 = SIDE_LENGTH * SQRT_3 / 3.0;
 const INRADIUS: f32 = CIRCUMRADIUS / 2.0;
 
 /// Shoud be between 0 and 1
-const SURVIVAL_FACTOR: f32 = 0.90;
+const SURVIVAL_FACTOR: f32 = 0.925;
 const HUE_RADIAN_INCREASE: f32 = TAU / 12.0;
 /// Shoud be between 0 and 1
-const ALPHA_DECAY: f32 = 0.65;
 
 // * Model
 struct Model {
@@ -73,7 +72,7 @@ impl Model {
                     }
                 }
                 // kill some triangles before they spawn
-                if rand::thread_rng().gen_bool(new_triangle.sibling_survival_rate as f64) {
+                if rand::thread_rng().gen_bool(new_triangle.survival_rate as f64) {
                     queue.push_back(new_triangle);
                 }
             }
@@ -88,7 +87,7 @@ struct Triangle {
     inradius: f32,
     circumradius: f32,
     orientation: f32,
-    sibling_survival_rate: f32,
+    survival_rate: f32,
     color: Hsla,
 }
 
@@ -106,7 +105,7 @@ impl Triangle {
         inradius: f32,
         circumradius: f32,
         orientation: f32,
-        sibling_survival_rate: f32,
+        survival_rate: f32,
         color: Hsla,
     ) -> Self {
         Self {
@@ -114,7 +113,7 @@ impl Triangle {
             inradius,
             circumradius,
             orientation,
-            sibling_survival_rate,
+            survival_rate,
             color,
         }
     }
@@ -158,6 +157,8 @@ impl Triangle {
             let y = orientation.cos() * radius;
             let origin = self.origin + pt2(x, y);
 
+            let survival_rate = self.survival_rate * SURVIVAL_FACTOR;
+            let alpha_decay = survival_rate;
             let color = {
                 let (hue, saturation, lightness, alpha) = self.color.into_components();
                 let hue = {
@@ -165,7 +166,7 @@ impl Triangle {
                     let updated = radians + HUE_RADIAN_INCREASE;
                     nannou::color::RgbHue::from_radians(updated)
                 };
-                let alpha = alpha * ALPHA_DECAY;
+                let alpha = alpha * alpha_decay;
                 nannou::color::Hsla::new(hue, saturation, lightness, alpha)
             };
 
@@ -174,7 +175,7 @@ impl Triangle {
                 self.inradius,
                 self.circumradius,
                 orientation,
-                self.sibling_survival_rate * SURVIVAL_FACTOR,
+                self.survival_rate * SURVIVAL_FACTOR,
                 color,
             )
         })
