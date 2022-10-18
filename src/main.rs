@@ -1,6 +1,9 @@
-use std::{collections::VecDeque, iter::successors};
-
 use nannou::prelude::*;
+use rand::Rng;
+use std::{
+    collections::{HashSet, VecDeque},
+    iter::successors,
+};
 
 const RATIO: f32 = 1.4142;
 const HEIGHT: f32 = 500.0;
@@ -43,28 +46,31 @@ impl Model {
     }
 
     fn draw_triangles(&self, draw: &Draw) {
-        let mut rounds = 20;
+        let mut triangles_left = 10;
         let mut queue: VecDeque<Triangle> = VecDeque::new();
         queue.push_back(self.triangle.clone()); // initialize queue
-        let mut rendered: Vec<Point2> = vec![];
+        let mut rendered: Vec<Point2> = Vec::new();
 
         while let Some(triangle) = queue.pop_front() {
-            rounds -= 1;
-            if rounds == 0 {
-                break;
-            }
-
             triangle.draw(draw);
             rendered.push(triangle.origin);
+
+            triangles_left -= 1;
+            if triangles_left == 0 {
+                break;
+            }
 
             // Don't enqueue new triangles queue if they are close (the same) as previous triangles
             'outer: for new_triangle in triangle.project() {
                 for existing in &rendered {
-                    if existing.distance(new_triangle.origin) < 0.1 {
+                    if existing.distance(new_triangle.origin) < 1.0 {
                         continue 'outer;
                     }
                 }
-                queue.push_back(new_triangle);
+                // randomize enqueing of new triangles
+                if rand::thread_rng().gen_bool(0.6) {
+                    queue.push_back(new_triangle);
+                }
             }
         }
     }
