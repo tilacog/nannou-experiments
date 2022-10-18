@@ -43,20 +43,29 @@ impl Model {
     }
 
     fn draw_triangles(&self, draw: &Draw) {
-        let mut rounds = 10;
+        let mut rounds = 20;
         let mut queue: VecDeque<Triangle> = VecDeque::new();
         queue.push_back(self.triangle.clone()); // initialize queue
+        let mut rendered: Vec<Point2> = vec![];
 
         while let Some(triangle) = queue.pop_front() {
-            // dbg!(rounds, &triangle, queue.len());
-            println!();
             rounds -= 1;
             if rounds == 0 {
                 break;
             }
 
             triangle.draw(draw);
-            queue.extend(triangle.project())
+            rendered.push(triangle.origin);
+
+            // Don't enqueue new triangles queue if they are close (the same) as previous triangles
+            'outer: for new_triangle in triangle.project() {
+                for existing in &rendered {
+                    if existing.distance(new_triangle.origin) < 0.1 {
+                        continue 'outer;
+                    }
+                }
+                queue.push_back(new_triangle);
+            }
         }
     }
 }
