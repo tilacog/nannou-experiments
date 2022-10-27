@@ -1,13 +1,19 @@
+mod grid;
+
+use grid::Grid;
 use nannou::prelude::*;
 
 const WIDTH: f32 = 500.0;
 const HEIGHT: f32 = 500.0;
+const SPACING: f32 = 20.0;
 
 fn main() {
     nannou::app(model).update(update).run();
 }
 
-struct Model {}
+struct Model {
+    grid: Grid,
+}
 
 fn model(app: &App) -> Model {
     app.set_loop_mode(LoopMode::loop_once());
@@ -18,13 +24,18 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
-    Model {}
+    Model {
+        grid: Grid::new(WIDTH, HEIGHT, SPACING),
+    }
 }
 
 fn update(_app: &App, _model: &mut Model, _update: Update) {}
 
-fn view(app: &App, _model: &Model, frame: Frame) {
+fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.background().color(BLACK);
+
+    model.grid.draw(&draw);
+
     draw.to_frame(app, &frame).unwrap();
 }
