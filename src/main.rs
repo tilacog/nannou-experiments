@@ -37,5 +37,11 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
     model.grid.draw(&draw);
 
+    let first = model.grid.iter().next().unwrap();
+    first.draw(&draw, Some(STEELBLUE));
+
+    let last = model.grid.iter().last().unwrap();
+    last.draw(&draw, None);
+
     draw.to_frame(app, &frame).unwrap();
 }
