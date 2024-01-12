@@ -21,6 +21,7 @@ pub fn pointy_hex_corner(center: Point2, size: f32, corner: usize) -> Point2 {
     )
 }
 
+
 /// Moving one space in hex coordinates involves changing one of the 3 cube coordinates by +1 and
 /// changing another one by -1 (the sum must remain 0). There are 3 possible coordinates to change
 /// by +1, and 2 remaining that could be changed by -1. This results in 6 possible changes. Each
@@ -93,6 +94,19 @@ impl CubeCoord {
             results.extend(ring.into_iter());
         }
         results
+    }
+
+    /// The way to think about hex to pixel conversion is to look at the basis vectors. The arrow
+    /// (0,0)→(1,0) is the q basis vector (x=sqrt(3), y=0) and (0,0)→(0,1) is the r basis vector
+    /// (x=sqrt(3)/2, y=3/2). The pixel coordinate is q_basis * q + r_basis * r. For example, the
+    /// hex at (1,1) is the sum of 1 q vector and 1 r vector. A hex at (3,2) would be the sum of 3 q
+    /// vectors and 2 r vectors.
+    pub fn cartesian(&self, size: f32) -> Point2 {
+        let sqrt3 = 3.0f32.sqrt();
+        let sqrt3_2 = sqrt3 / 2.0;
+        let x = size * (sqrt3 * self.q as f32 + sqrt3_2 * self.r as f32);
+        let y = size * ((3.0/2.0) * self.r as f32);
+        Point2::new(x, y)
     }
 }
 
