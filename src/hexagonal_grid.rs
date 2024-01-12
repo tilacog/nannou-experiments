@@ -47,7 +47,7 @@ impl CubeCoord {
     const fn new_unchecked(q: i32, r: i32, s: i32) -> Self {
         Self { q, r, s }
     }
-    fn new(q: i32, r: i32, s: i32) -> Self {
+    pub fn new(q: i32, r: i32, s: i32) -> Self {
         assert_eq!(0, q + s + r);
         Self { q, r, s }
     }
