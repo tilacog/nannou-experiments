@@ -1,5 +1,5 @@
 [package]
-name = "testing_nannou"
+name = "nannou-experiments"
 version = "0.1.0"
 authors = ["tilacog <tilacog@gmail.com>"]
 edition = "2021"
