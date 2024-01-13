@@ -18,10 +18,11 @@ fn main() {
     nannou::app(model).update(update).run();
 }
 
-struct Model {}
+struct Model {
+    scale: f32,
+}
 
 fn model(app: &App) -> Model {
-    app.set_loop_mode(LoopMode::loop_once());
     let _window = app
         .new_window()
         .size(WIDTH, HEIGHT)
@@ -29,15 +30,20 @@ fn model(app: &App) -> Model {
         .build()
         .expect("failed to build window");
 
-    Model {}
+    Model { scale: 1.0 }
 }
 
-fn update(_app: &App, _model: &mut Model, _update: Update) {}
+fn update(app: &App, model: &mut Model, _update: Update) {
+    let win = app.window_rect();
+    let scale = map_range(app.mouse.x, win.left(), win.right(), 0.01, 10.0);
+    model.scale = scale;
 
-fn view(app: &App, _model: &Model, frame: Frame) {
-    let draw = app.draw();
+}
+
+fn view(app: &App, model: &Model, frame: Frame) {
+    let draw = app.draw().scale(model.scale);
     draw.background().color(BACKGROUND_COLOR);
-    draw_units(25, &draw);
+    draw_units(50, &draw);
     draw.to_frame(app, &frame).unwrap();
     app.main_window().capture_frame("/tmp/img.png");
 }
