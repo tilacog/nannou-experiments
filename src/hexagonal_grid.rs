@@ -21,7 +21,6 @@ pub fn pointy_hex_corner(center: Point2, size: f32, corner: usize) -> Point2 {
     )
 }
 
-
 /// Moving one space in hex coordinates involves changing one of the 3 cube coordinates by +1 and
 /// changing another one by -1 (the sum must remain 0). There are 3 possible coordinates to change
 /// by +1, and 2 remaining that could be changed by -1. This results in 6 possible changes. Each
@@ -50,6 +49,10 @@ impl CubeCoord {
     pub fn new(q: i32, r: i32, s: i32) -> Self {
         assert_eq!(0, q + s + r);
         Self { q, r, s }
+    }
+
+    pub fn into_parts(self) -> (i32, i32, i32) {
+        (self.q, self.r, self.s)
     }
 
     pub fn direction(direction: usize) -> CubeCoord {
@@ -105,7 +108,7 @@ impl CubeCoord {
         let sqrt3 = 3.0f32.sqrt();
         let sqrt3_2 = sqrt3 / 2.0;
         let x = size * (sqrt3 * self.q as f32 + sqrt3_2 * self.r as f32);
-        let y = size * ((3.0/2.0) * self.r as f32);
+        let y = size * ((3.0 / 2.0) * self.r as f32);
         Point2::new(x, y)
     }
 }
